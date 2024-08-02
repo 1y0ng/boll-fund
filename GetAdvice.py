@@ -13,6 +13,8 @@ def read_f(file_name):#读取文本内容
     for line in open(file_name,encoding='utf-8'):
         list_id.append(line.rstrip('\n'))
     return list_id
+
+
 def get_gsz(code):#根据编号获取基金当日净值和名字
     t = time.time()
     url='http://fundgz.1234567.com.cn/js/'+code+'.js?rt='+str(round(t * 1000))
@@ -65,22 +67,12 @@ def get_line(code):#对相关基金历史净值进行爬取
         elif series_list[0]<arr_mean-1.5*arr_std:
             buys.append(code+name)
     except Exception as e:
-        print("基金代码{}有误".format(code))
+        print("基金代码{}有误".format(code),e)
 
 
 headers={
-    'Sec-Ch-Ua':'\"Microsoft Edge\";v=\"105\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"105\"',
-    'Sec-Ch-Ua-Mobile':'?0',
-    'Sec-Ch-Ua-Platform':'\"Windows\"',
-    'Upgrade-Insecure-Requests':'1',
     'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.33',
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    'Sec-Fetch-Site':'same-origin',
-    'Sec-Fetch-Mode':'navigate',
-    'Sec-Fetch-User':'?1',
-    'Sec-Fetch-Dest':'document',
-    'Accept-Encoding':'gzip, deflate',
-    'Accept-Language':'zh-CN,zh;q=0.9,en-GB;q=0.8,en-US;q=0.7,en;q=0.6'
 }
 buys=[]
 sales=[]
@@ -88,5 +80,7 @@ sales=[]
 def run():
     codes=read_f('ku.txt')
     for code in codes:
-        get_line(code)
+        if len(code)==6:
+            get_line(code)
     print_out(buys,sales)
+run()
