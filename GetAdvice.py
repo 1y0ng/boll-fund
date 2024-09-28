@@ -1,12 +1,4 @@
-# -*- coding: UTF-8 -*-
-import requests
-import re
-import datetime
-import time
-import datetime
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from bs4 import BeautifulSoup
+from GetImg import get_list, get_gsz
 import numpy as np 
 def read_f(file_name):#读取文本内容
     list_id=[]
@@ -14,22 +6,6 @@ def read_f(file_name):#读取文本内容
         list_id.append(line.rstrip('\n'))
     return list_id
 
-
-def get_gsz(code):#根据编号获取基金当日净值和名字
-    t = time.time()
-    url='http://fundgz.1234567.com.cn/js/'+code+'.js?rt='+str(round(t * 1000))
-    req=requests.get(str(url)).content.decode()
-    if 'name' in req and 'gsz' in req:
-        name=re.findall('name\":\"(.*?)\"',req)[0]
-        gsz=re.findall('gsz\":\"(.*?)\"',req)
-        return [float(gsz[0]),name]
-
-def get_cur_month():# 获取当前日期
-        return datetime.now().strftime("%Y-%m-%d")
-
-def get_last_month(number=2):# 获取前number个月的日期
-        month_date = datetime.now().date() - relativedelta(months=number)
-        return month_date.strftime("%Y-%m-%d")
 
 def print_out(buys,sales):#汇总输出
     if len(buys):
@@ -47,18 +23,9 @@ def print_out(buys,sales):#汇总输出
 
 def get_line(code):#对相关基金历史净值进行爬取
     try:
-        res=get_gsz(code)
-        series_list=[res[0]]
-        name=res[1]
-        url='https://www.dayfund.cn/fundvalue/'+code+'.html?sdate='+get_last_month()+'&edate='+get_cur_month()#爬取的url
-        req=requests.get(str(url),headers=headers).content.decode()
-        soup = BeautifulSoup(req, "html.parser")#利用bs4对提取净值
-        row1 = soup.select('tr.row1 > td')
-        row2 = soup.select('tr.row2 > td')
-        for i in range(9):
-            series_list.append(float(row1[i*9+3].get_text()))
-            series_list.append(float(row2[i*9+3].get_text()))
-        series_list.append(float(row1[9*9+3].get_text()))
+        name=get_gsz(code)[1]
+        series_list , _ = get_list(code,25)
+        series_list = series_list[:20]
         arr_mean = np.mean(series_list)#平均值
         arr_std = np.std(series_list, ddof=1)#标准差
         # print(series_list)
@@ -83,4 +50,4 @@ def run():
         if len(code)==6:
             get_line(code)
     print_out(buys,sales)
-run()
+# run()
