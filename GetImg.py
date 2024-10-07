@@ -74,7 +74,7 @@ def get_list(code,num,edate = get_cur_month()):
         if len(code)!=6:
             raise Exception("基金代码不是6位")
 
-        if edate == get_cur_month():
+        if edate == get_cur_month() or edate == "":
             x = [get_cur_month()[5:]]
             series_list=[get_gsz(code)[0]]
             edate = get_yesterday()
@@ -126,10 +126,10 @@ h=[]#高位线
 x=[]
 series_list=[]
 # print(x)
-def run(code,n=100):
+def run(code,n=100,T=""):
     global series_list,h,l,x,mid,t,num
-    num=n
-    series_list,x=get_list(code,num)
+    num=n if (n!=0 and n!=None) else 100
+    series_list,x=get_list(code,num,T)
     x.reverse()
     t=[0]*num#当日净值
     mid=[0]*num#20日均线
@@ -154,8 +154,8 @@ def run(code,n=100):
     plt.xlabel('time')
     plt.ylabel('net worth')
     plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0)
-    for x1, y1 in zip(x, t):
-        plt.text(x1, y1, str(y1), ha='center', va='bottom', fontsize=10)
+    # for x1, y1 in zip(x, t):
+    #     plt.text(x1, y1, str(y1), ha='center', va='bottom', fontsize=10)
     plt.show()
 # print(get_list_2("012417",20))
 # run("012417")

@@ -4,12 +4,13 @@ import GetDetail
 import GetAdvice
 import GetImg
 argv=sys.argv[1:]
-opts,args=getopt.getopt(argv,"i:o:d:a")#除了a以外其余选项都应该带有参数
+opts,args=getopt.getopt(argv,"i:o:d:t:a")#除了a以外其余选项都应该带有参数
 # print(opts)
 i=0
 d=0
 code=''
-opt,arg=opts[0]
+t=''
+
 for opt,arg in opts:
     if opt=='-i':#显示某一基金的图像
         i=1
@@ -20,8 +21,7 @@ for opt,arg in opts:
         GetDetail.run(arg)
     elif opt=='-d':
         d=int(arg)
+    elif opt=='-t':
+        t = arg
 if i==1:
-    if d<=0:
-        GetImg.run(code)
-    else:
-        GetImg.run(code,d)
+    GetImg.run(code,d,t)

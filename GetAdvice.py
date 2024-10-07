@@ -1,5 +1,9 @@
 from GetImg import get_list, get_gsz
-import numpy as np 
+import numpy as np
+
+from GetRSI import get_rsi
+
+
 def read_f(file_name):#读取文本内容
     list_id=[]
     for line in open(file_name,encoding='utf-8'):
@@ -25,14 +29,21 @@ def get_line(code):#对相关基金历史净值进行爬取
     try:
         name=get_gsz(code)[1]
         series_list , _ = get_list(code,25)
-        series_list = series_list[:20]
+        RSI = get_rsi(series_list, 25)[-1]
+        series_list = series_list[-20:]
         arr_mean = np.mean(series_list)#平均值
         arr_std = np.std(series_list, ddof=1)#标准差
-        # print(series_list)
-        if series_list[0]>arr_mean+1.5*arr_std:
-            sales.append(code+name)
-        elif series_list[0]<arr_mean-1.5*arr_std:
-            buys.append(code+name)
+        x = ""
+        if RSI>70 or RSI<30:
+            x = "***"
+        elif RSI>65 or RSI<35:
+            x = "**"
+        elif RSI>60 or RSI<40:
+            x = "*"
+        if series_list[-1]>arr_mean+1.5*arr_std:
+            sales.append(code+name+x)
+        elif series_list[-1]<arr_mean-1.5*arr_std:
+            buys.append(code+name+x)
     except Exception as e:
         print("基金代码{}有误".format(code),e)
 
@@ -50,4 +61,4 @@ def run():
         if len(code)==6:
             get_line(code)
     print_out(buys,sales)
-# run()
+run()
