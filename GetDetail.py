@@ -4,17 +4,11 @@ import datetime
 import time
 import datetime
 from datetime import datetime
+from GetImg import get_list,get_gsz
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
 import numpy as np 
-def get_gsz(code):
-    t = time.time()
-    url='http://fundgz.1234567.com.cn/js/'+code+'.js?rt='+str(round(t * 1000))
-    req=requests.get(str(url)).content.decode()
-    if 'name' in req and 'gsz' in req:
-        name=re.findall('name\":\"(.*?)\"',req)[0]
-        gsz=re.findall('gsz\":\"(.*?)\"',req)
-        return [float(gsz[0]),name]
+
 
 def get_cur_month():# 获取当前月
         return datetime.now().strftime("%Y-%m-%d")
@@ -40,20 +34,12 @@ headers={
 def run(code):
     try:
         res=get_gsz(code)
-        series_list=[res[0]]
-        print("基金名为:",res[1])
-        url='https://www.dayfund.cn/fundvalue/'+code+'.html?sdate='+get_last_month()+'&edate='+get_cur_month()
-        url2='http://www.dayfund.cn/fundvalue/'+code+'.html?sdate='+get_last_month()+'&edate='+get_cur_month()
-        req=requests.get(str(url),headers=headers).content.decode()
-        soup = BeautifulSoup(req, "html.parser")
-        row1 = soup.select('tr.row1 > td')
-        row2 = soup.select('tr.row2 > td')
-        for i in range(9):
-            series_list.append(float(row1[i*9+3].get_text()))
-            series_list.append(float(row2[i*9+3].get_text()))
-        series_list.append(float(row1[9*9+3].get_text()))
+        
+        series_list , _ = get_list(code,25)
+        series_list = series_list[:20]
         arr_mean = np.mean(series_list)
         arr_std = np.std(series_list, ddof=1)
+        print("基金名为:",res[1])
         print('今日净值:',series_list[0])
         print('高位线:',arr_mean+1.5*arr_std)
         print('20日均线:',arr_mean)

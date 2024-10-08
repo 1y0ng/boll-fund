@@ -61,4 +61,3 @@ def run():
         if len(code)==6:
             get_line(code)
     print_out(buys,sales)
-run()
